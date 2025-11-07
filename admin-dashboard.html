@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - UMA Elections</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>UMA Elections - Admin Dashboard</h1>
+            <p>Election Management System</p>
+            <div class="admin-header-info">
+                <span>Logged in as: <strong id="currentAdmin"></strong> (<span id="adminRole"></span>)</span>
+                <span id="loginTime"></span>
+                <button onclick="logout()" class="danger-btn logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Dashboard Overview -->
+            <section id="dashboardSection" class="active">
+                <h2><i class="fas fa-tachometer-alt"></i> Election Overview</h2>
+                
+                <div class="admin-tools">
+                    <div class="tool-card">
+                        <h3><i class="fas fa-chart-bar"></i> Quick Statistics</h3>
+                        <div id="adminStats" class="stats-container">
+                            <p>Loading statistics...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h3><i class="fas fa-cogs"></i> Quick Actions</h3>
+                        <div class="action-buttons">
+                            <button onclick="showSection('resultsSection')" class="secondary-btn">
+                                <i class="fas fa-poll"></i> View Live Results
+                            </button>
+                            <button onclick="refreshAllData()" class="secondary-btn">
+                                <i class="fas fa-sync-alt"></i> Refresh Data
+                            </button>
+                            <button onclick="showSection('voterManagementSection')" class="secondary-btn">
+                                <i class="fas fa-users"></i> Voter Management
+                            </button>
+                            <button onclick="showSection('candidateManagementSection')" class="secondary-btn">
+                                <i class="fas fa-user-edit"></i> Candidate Management
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-time Results Preview -->
+                <div class="tool-card">
+                    <h3><i class="fas fa-fire"></i> Live Results Preview</h3>
+                    <div id="resultsPreview" class="preview-container">
+                        <p>Loading latest results...</p>
+                    </div>
+                    <button onclick="showSection('resultsSection')" class="secondary-btn">
+                        <i class="fas fa-external-link-alt"></i> View Full Results
+                    </button>
+                </div>
+            </section>
+
+            <!-- Live Results Section -->
+            <section id="resultsSection">
+                <h2><i class="fas fa-poll"></i> Live Election Results</h2>
+                <p>Results update in real-time as votes are cast.</p>
+                
+                <div class="results-controls">
+                    <button onclick="showSection('dashboardSection')" class="secondary-btn">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </button>
+                    <button onclick="refreshResults()" class="secondary-btn">
+                        <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                    <button onclick="exportResults()" class="secondary-btn" id="exportBtn">
+                        <i class="fas fa-download"></i> Export Results
+                    </button>
+                </div>
+                
+                <div id="adminResultsContainer">
+                    <!-- Results loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Voter Management Section -->
+            <section id="voterManagementSection">
+                <h2><i class="fas fa-users-cog"></i> Voter Management</h2>
+                
+                <div class="navigation">
+                    <button onclick="showSection('dashboardSection')" class="secondary-btn">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </button>
+                </div>
+
+                <!-- Super Admin Tools (Only for superadmin) -->
+                <div id="superAdminSection" class="admin-section">
+                    <h3><i class="fas fa-user-shield"></i> Super Admin Tools</h3>
+                    <p class="warning"><em>Advanced voter management capabilities</em></p>
+                    
+                    <div class="admin-tools">
+                        <div class="tool-card">
+                            <h4><i class="fas fa-search"></i> Voter Lookup</h4>
+                            <div class="input-group">
+                                <input type="text" id="voterLookupName" placeholder="Enter voter name or email">
+                                <button onclick="lookupVoter()" class="secondary-btn">
+                                    <i class="fas fa-search"></i> Find Voter
+                                </button>
+                            </div>
+                            <div id="voterLookupResult" class="lookup-result"></div>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4><i class="fas fa-user-check"></i> Voted Voters</h4>
+                            <button onclick="showVotedVoters()" class="secondary-btn">
+                                <i class="fas fa-list"></i> View Voted Voters
+                            </button>
+                            <div id="votedVotersList"></div>
+                        </div>
+                    </div>
+
+                    <!-- Voter Actions -->
+                    <div id="voterActionSection" class="tool-card" style="display: none;">
+                        <h4><i class="fas fa-edit"></i> Voter Actions</h4>
+                        <p>Selected Voter: <strong id="selectedVoterName"></strong></p>
+                        <p>Vote Status: <span id="voterVoteStatus" class="status-badge"></span></p>
+                        
+                        <div class="action-form">
+                            <label for="superAdminCandidateSelect">Change Vote:</label>
+                            <select id="superAdminCandidateSelect">
+                                <option value="">Select candidate</option>
+                            </select>
+                            <button onclick="changeVote()" class="warning-btn">
+                                <i class="fas fa-exchange-alt"></i> Override Vote
+                            </button>
+                            <div id="superAdminMessage" class="message"></div>
+                        </div>
+                    </div>
+
+                    <!-- Invalid Votes Management Section -->
+                    <div id="invalidVotesSection" class="admin-section">
+                        <h3><i class="fas fa-ban"></i> Invalid Votes Management</h3>
+                        <p class="warning"><em>Manage voters with invalid ID submissions</em></p>
+                        
+                        <div class="admin-tools">
+                            <div class="tool-card">
+                                <h4><i class="fas fa-list"></i> Invalid Voters List</h4>
+                                <button onclick="loadInvalidVoters()" class="secondary-btn">
+                                    <i class="fas fa-refresh"></i> Refresh List
+                                </button>
+                                <div id="invalidVotersList" class="invalid-voters-list">
+                                    <p>Click "Refresh List" to see invalid voters</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="tool-card danger-zone">
+                        <h4><i class="fas fa-exclamation-triangle"></i> Danger Zone</h4>
+                        <p><em>Critical system operations - Use with caution</em></p>
+                        
+                        <div class="danger-actions">
+                            <button onclick="restartElection()" class="danger-btn">
+                                <i class="fas fa-redo"></i> Restart Election
+                            </button>
+                            <button onclick="exportFullData()" class="warning-btn">
+                                <i class="fas fa-database"></i> Export Full Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Regular Admin Voter Info -->
+                <div class="tool-card">
+                    <h4><i class="fas fa-info-circle"></i> Voter Statistics</h4>
+                    <div id="voterStats">
+                        <p>Loading voter statistics...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Candidate Management Section -->
+            <section id="candidateManagementSection">
+                <h2><i class="fas fa-user-edit"></i> Candidate Management</h2>
+                
+                <div class="navigation">
+                    <button onclick="showSection('dashboardSection')" class="secondary-btn">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </button>
+                </div>
+
+                <!-- Super Admin Tools for Candidate Management -->
+                <div id="superAdminCandidateSection" class="admin-section">
+                    <h3><i class="fas fa-images"></i> Candidate Photo Management</h3>
+                    <p class="warning"><em>Manage candidate profiles and photos</em></p>
+                    
+                    <div class="admin-tools">
+                        <div class="tool-card">
+                            <h4><i class="fas fa-search"></i> Find Candidate</h4>
+                            <div class="input-group">
+                                <input type="text" id="candidateSearch" placeholder="Enter candidate name">
+                                <button onclick="searchCandidates()" class="secondary-btn">
+                                    <i class="fas fa-search"></i> Search
+                                </button>
+                            </div>
+                            <div id="candidateSearchResults" class="search-results"></div>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h4><i class="fas fa-plus"></i> Add New Candidate</h4>
+                            <button onclick="showAddCandidateForm()" class="secondary-btn">
+                                <i class="fas fa-user-plus"></i> Add Candidate
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Candidate Edit Form -->
+                    <div id="candidateEditForm" class="tool-card" style="display: none;">
+                        <h4><i class="fas fa-edit"></i> Edit Candidate</h4>
+                        <p>Editing: <strong id="editingCandidateName"></strong></p>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="editCandidateName">Candidate Name:</label>
+                                <input type="text" id="editCandidateName" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editCandidateDescription">Description:</label>
+                                <textarea id="editCandidateDescription" class="form-input" rows="3"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="editCandidatePosition">Position:</label>
+                                <select id="editCandidatePosition" class="form-input"></select>
+                            </div>
+                        </div>
+
+                        <!-- Photo Management -->
+                        <div class="photo-management">
+                            <h5><i class="fas fa-camera"></i> Photo Management</h5>
+                            
+                            <div class="current-photo" id="currentPhotoSection">
+                                <p>Current Photo:</p>
+                                <img id="currentCandidatePhoto" src="" alt="Current photo" style="max-width: 200px; display: none;">
+                                <p id="noPhotoMessage">No photo uploaded</p>
+                                <button onclick="removeCandidatePhoto()" class="danger-btn" id="removePhotoBtn" style="display: none;">
+                                    <i class="fas fa-trash"></i> Remove Photo
+                                </button>
+                            </div>
+                            
+                            <div class="upload-new-photo">
+                                <p>Upload New Photo:</p>
+                                <input type="file" id="newCandidatePhoto" accept="image/*" style="margin: 10px 0;">
+                                <button onclick="uploadCandidatePhoto()" class="secondary-btn">
+                                    <i class="fas fa-upload"></i> Upload Photo
+                                </button>
+                                <p class="file-size-info">Max file size: 2MB • Supported: JPEG, PNG, WebP</p>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button onclick="updateCandidate()" class="secondary-btn">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <button onclick="cancelEdit()" class="danger-btn">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                        
+                        <div id="candidateEditMessage" class="message"></div>
+                    </div>
+
+                    <!-- Add Candidate Form -->
+                    <div id="addCandidateForm" class="tool-card" style="display: none;">
+                        <h4><i class="fas fa-user-plus"></i> Add New Candidate</h4>
+                        
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="newCandidateName">Candidate Name:</label>
+                                <input type="text" id="newCandidateName" class="form-input" placeholder="Enter full name">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="newCandidateDescription">Description:</label>
+                                <textarea id="newCandidateDescription" class="form-input" rows="3" placeholder="Candidate description"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="newCandidatePosition">Position:</label>
+                                <select id="newCandidatePosition" class="form-input"></select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="newCandidatePhotoInput">Photo:</label>
+                                <input type="file" id="newCandidatePhotoInput" accept="image/*">
+                                <p class="file-size-info">Max file size: 2MB • Supported: JPEG, PNG, WebP</p>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button onclick="createCandidate()" class="secondary-btn">
+                                <i class="fas fa-plus"></i> Create Candidate
+                            </button>
+                            <button onclick="cancelAdd()" class="danger-btn">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                        </div>
+                        
+                        <div id="addCandidateMessage" class="message"></div>
+                    </div>
+
+                    <!-- Candidates List -->
+                    <div class="tool-card">
+                        <h4><i class="fas fa-list"></i> All Candidates</h4>
+                        <button onclick="loadAllCandidates()" class="secondary-btn">
+                            <i class="fas fa-refresh"></i> Refresh List
+                        </button>
+                        <div id="allCandidatesList" class="candidates-list">
+                            <p>Click "Refresh List" to load candidates</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Management Section -->
+            <section id="systemSection">
+                <h2><i class="fas fa-cogs"></i> System Management</h2>
+                <div class="admin-tools">
+                    <div class="tool-card">
+                        <h4><i class="fas fa-clock"></i> Election Timer Control</h4>
+                        <div id="electionTimerControl" class="timer-control">
+                            <p>Current election end time: <strong id="electionEndTimeDisplay">Not set</strong></p>
+                            <p>Set a new election duration to automatically close voting.</p>
+                            <button onclick="updateElectionTimer()" class="secondary-btn">
+                                <i class="fas fa-edit"></i> Set Election Timer
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="tool-card">
+                        <h4><i class="fas fa-database"></i> Database Status</h4>
+                        <div id="databaseStatus">
+                            <p>Checking database connection...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>UMA Secure Voting System &copy; 2025 | Admin Session Active</p>
+            <p>Session started: <span id="sessionTimer"></span></p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="admin-dashboard.js"></script>
+</body>
+</html>

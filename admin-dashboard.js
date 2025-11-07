@@ -1,6 +1,6 @@
 // admin-dashboard.js - Complete Admin Dashboard Functionality - UPDATED FOR UMA
-const SUPABASE_URL = 'https://aeulakfebabgocbevjis.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFldWxha2ZlYmFiZ29jYmV2amlzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg1NzYzMjIsImV4cCI6MjA3NDE1MjMyMn0.TAdkgFLLdpfn38YWRSnTtveEJLFVk_c8EgE9nEwoLf0';
+const SUPABASE_URL = 'https://jypuappvttmkvrxowvmh.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp5cHVhcHB2dHRta3ZyeG93dm1oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjIxNjg3NTUsImV4cCI6MjA3Nzc0NDc1NX0.-zb9RObfSaCV8MOik1AFIW_ygq3Agh2QuWky9RXcXZA';
 
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 

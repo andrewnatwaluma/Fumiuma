@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator Login - UMA Elections</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>UMA Elections - Administrator Access</h1>
+            <p>Uganda Medical Association</p>
+            <div class="uma-logo">
+                <i class="fas fa-hospital-user fa-2x"></i>
+                <span>Secure Admin Portal</span>
+                <i class="fas fa-stethoscope fa-2x"></i>
+            </div>
+        </header>
+
+        <main>
+            <section class="active">
+                <div class="admin-login-container">
+                    <h2><i class="fas fa-lock"></i> Administrator Login</h2>
+                    <p class="warning-message">Restricted area. Authorized personnel only.</p>
+                    
+                    <div class="login-form">
+                        <div class="input-group">
+                            <i class="fas fa-user"></i>
+                            <input type="text" id="adminUsername" placeholder="Administrator Username" autocomplete="username">
+                        </div>
+                        
+                        <div class="input-group">
+                            <i class="fas fa-key"></i>
+                            <input type="password" id="adminPassword" placeholder="Password" autocomplete="current-password">
+                        </div>
+                        
+                        <button onclick="handleAdminLogin()" class="admin-login-btn">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </button>
+                        
+                        <div id="adminLoginMessage" class="message"></div>
+                    </div>
+                    
+                    <p><a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Back to Voter Login</a></p>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>UMA Secure Voting System &copy; 2023 | Administrator Access Logged</p>
+        </footer>
+    </div>
+
+    <script>
+        // Updated admin credentials - Andrew removed
+        const ADMIN_CREDENTIALS = {
+            'admin': { password: 'admin123', role: 'admin' },
+            'superadmin': { password: 'super123', role: 'superadmin' },
+            'election': { password: 'election2023', role: 'superadmin' }
+        };
+
+        function handleAdminLogin() {
+            const username = document.getElementById('adminUsername').value.trim();
+            const password = document.getElementById('adminPassword').value;
+            const messageElement = document.getElementById('adminLoginMessage');
+
+            if (!username || !password) {
+                showLoginMessage(messageElement, 'Please enter both username and password', 'error');
+                return;
+            }
+
+            const user = ADMIN_CREDENTIALS[username];
+            
+            if (user && user.password === password) {
+                showLoginMessage(messageElement, `Login successful! Redirecting...`, 'success');
+                
+                // Store admin session data
+                localStorage.setItem('adminRole', user.role);
+                localStorage.setItem('adminUsername', username);
+                localStorage.setItem('adminLoginTime', new Date().toISOString());
+                
+                setTimeout(() => {
+                    window.location.href = 'admin-dashboard.html';
+                }, 1000);
+            } else {
+                showLoginMessage(messageElement, 'Invalid username or password', 'error');
+                // Clear password field on error
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        function showLoginMessage(element, message, type) {
+            element.textContent = message;
+            element.className = `message ${type}`;
+        }
+
+        // Handle Enter key press
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordField = document.getElementById('adminPassword');
+            passwordField.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleAdminLogin();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

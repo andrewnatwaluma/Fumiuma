@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Election Results - UMA Elections</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Election Timer -->
+    <div id="electionTimer">
+        <i class="fas fa-clock"></i>
+        <span id="countdownText">Election ends in: </span>
+        <span id="countdown"></span>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>UMA Elections - Live Results</h1>
+            <p>Uganda Medical Association</p>
+            <div class="uma-logo">
+                <i class="fas fa-hospital-user fa-2x"></i>
+                <span>Real-time Election Results</span>
+                <i class="fas fa-chart-line fa-2x"></i>
+            </div>
+        </header>
+
+        <main>
+            <section class="active">
+                <!-- Results Summary -->
+                <div class="results-summary">
+                    <h2><i class="fas fa-tachometer-alt"></i> Election Summary</h2>
+                    <div id="resultsStats" class="stats-container">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span class="stat-value" id="totalVoters">0</span>
+                            <span class="stat-label">Total Voters</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-vote-yea"></i>
+                            <span class="stat-value" id="votedCount">0</span>
+                            <span class="stat-label">Have Voted</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-chart-pie"></i>
+                            <span class="stat-value" id="turnout">0%</span>
+                            <span class="stat-label">Turnout</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-bullseye"></i>
+                            <span class="stat-value" id="totalPositions">0</span>
+                            <span class="stat-label">Positions</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Filter -->
+                <div class="results-controls">
+                    <div class="filter-group">
+                        <label for="positionFilter"><i class="fas fa-filter"></i> Filter by Position:</label>
+                        <select id="positionFilter" onchange="filterResults()">
+                            <option value="all">All Positions</option>
+                        </select>
+                    </div>
+                    <div class="view-options">
+                        <button onclick="toggleView()" class="secondary-btn" id="viewToggle">
+                            <i class="fas fa-chart-bar"></i> Switch to Chart View
+                        </button>
+                        <button onclick="refreshResults()" class="secondary-btn">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Display -->
+                <div id="resultsContainer">
+                    <div class="loading-results">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Loading election results...</p>
+                    </div>
+                </div>
+
+                <!-- Chart View (Hidden by default) -->
+                <div id="chartContainer" style="display: none;">
+                    <h3><i class="fas fa-chart-bar"></i> Results Visualization</h3>
+                    <canvas id="resultsChart" width="400" height="200"></canvas>
+                </div>
+
+                <!-- Last Updated -->
+                <div class="last-updated">
+                    <p id="lastUpdated">Last updated: <span id="updateTime">Never</span></p>
+                    <div class="auto-refresh">
+                        <label>
+                            <input type="checkbox" id="autoRefresh" checked>
+                            Auto-refresh every 30 seconds
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="results-navigation">
+                    <button onclick="window.location.href='index.html'" class="secondary-btn">
+                        <i class="fas fa-arrow-left"></i> Back to Voting
+                    </button>
+                    <button onclick="window.location.href='admin-login.html'" class="secondary-btn">
+                        <i class="fas fa-lock"></i> Admin Login
+                    </button>
+                </div>
+            </section>
+
+            <!-- No Results Screen -->
+            <section id="noResultsSection">
+                <div class="no-results">
+                    <i class="fas fa-clipboard-list fa-3x"></i>
+                    <h2>No Votes Yet</h2>
+                    <p>The election has started, but no votes have been cast yet.</p>
+                    <p>Check back later to see the results as they come in.</p>
+                    <button onclick="window.location.href='index.html'" class="secondary-btn">
+                        <i class="fas fa-vote-yea"></i> Cast Your Vote
+                    </button>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>UMA Secure Voting System &copy; 2025 | Results update in real-time</p>
+            <p>This is a public results page. For detailed administration, please use the admin portal.</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="realtime-results.js"></script>
+</body>
+</html>

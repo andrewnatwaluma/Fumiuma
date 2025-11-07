@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>UMA Elections - Voting System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="theme-color" content="#1a237e">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <!-- Election Timer -->
+    <div id="electionTimer">
+        <i class="fas fa-clock"></i>
+        <span id="countdownText">Election ends in: </span>
+        <span id="countdown"></span>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>UMA Elections</h1>
+            <p>Uganda Medical Association</p>
+            <div class="uma-logo">
+                <i class="fas fa-hospital-user"></i>
+                <span>Here to Serve the Nation</span>
+                <i class="fas fa-stethoscope"></i>
+            </div>
+        </header>
+        
+        <!-- Voting Closed Message -->
+        <div id="votingClosedSection" style="display: none;">
+            <div class="voting-closed">
+                <i class="fas fa-lock fa-3x"></i>
+                <h2>Voting Has Closed</h2>
+                <p>The election period has ended. Thank you for your participation.</p>
+                <p>You can still view results and access the admin portal.</p>
+                <div class="navigation">
+                    <button onclick="window.location.href='results.html'" class="secondary-btn">
+                        <i class="fas fa-chart-bar"></i> View Results
+                    </button>
+                    <button onclick="window.location.href='admin-login.html'" class="secondary-btn">
+                        <i class="fas fa-lock"></i> Admin Portal
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-steps">
+                <div class="step completed">1</div>
+                <div class="step completed">2</div>
+                <div class="step active">3</div>
+                <div class="step">4</div>
+            </div>
+            <div class="progress-text">Step 2 of 4: Verify Identity</div>
+        </div>
+        
+        <main id="votingMain">
+            <!-- Section 1: Voter Login -->
+            <section id="loginSection" class="active">
+                <h2>Voter Login</h2>
+                <p>Enter your registered email address</p>
+                <input type="email" id="voterEmail" placeholder="Your Email Address" autocapitalize="off">
+                <button onclick="handleVoterLogin()">Login</button>
+                <p id="loginMessage" class="message info">Please enter your email to begin voting</p>
+                <a href="admin-login.html" class="admin-link">
+                    <i class="fas fa-lock"></i> Administrator Login
+                </a>
+            </section>
+
+            <!-- Section 2: Voter Details & ID Upload -->
+            <section id="voterDetailsSection">
+                <h2>Welcome!</h2>
+                <div class="voter-details">
+                    <p><strong>Email:</strong> <span id="displayEmail">Loading...</span></p>
+                </div>
+
+                <h3>Step 2: Verify Your Identity</h3>
+                <p>Upload a clear picture of your UMA ID (Max: 10MB)</p>
+                
+                <!-- Enhanced ID Upload Options -->
+                <div class="upload-options">
+                    <div class="upload-option" onclick="openCamera()">
+                        <i class="fas fa-camera"></i>
+                        <span>Take Photo</span>
+                        <p>Use your camera to take a new picture</p>
+                    </div>
+                    
+                    <div class="upload-option" onclick="openGallery()">
+                        <i class="fas fa-images"></i>
+                        <span>Choose from Gallery</span>
+                        <p>Select an existing photo from your device</p>
+                    </div>
+                </div>
+
+                <div class="file-size-warning">
+                    <i class="fas fa-info-circle"></i> Maximum file size: 10MB • Supported formats: JPEG, PNG, WebP
+                </div>
+
+                <!-- Hidden file input for both options -->
+                <input type="file" id="idUpload" accept="image/*" capture="environment" style="display: none;">
+                
+                <!-- Preview Section -->
+                <div id="idPreview" class="id-preview" style="display: none;">
+                    <h4>ID Preview</h4>
+                    <img id="previewImage" src="" alt="ID preview">
+                    <div class="preview-actions">
+                        <button onclick="confirmUpload()" class="secondary-btn">
+                            <i class="fas fa-check"></i> Confirm Upload
+                        </button>
+                        <button onclick="cancelUpload()" class="danger-btn">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <p id="uploadMessage" class="message info">Please upload your UMA ID for verification</p>
+            </section>
+
+            <!-- Section 3: Voting Interface -->
+            <section id="votingSection">
+                <h2>Cast Your Vote</h2>
+                <p>Select your preferred candidate for each position. You may skip any position.</p>
+                
+                <div class="completion-alert" id="completionAlert">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="completionText">You have voted for 0 of 0 positions</span>
+                </div>
+                
+                <div class="positions-container" id="positionsContainer">
+                    <!-- Positions loaded dynamically -->
+                </div>
+                
+                <div class="navigation">
+                    <button onclick="reviewVotes()" id="reviewButton" disabled>
+                        <i class="fas fa-clipboard-check"></i> Review Votes
+                    </button>
+                </div>
+            </section>
+
+            <!-- Section 4: Review Votes -->
+            <section id="reviewSection">
+                <h2>Review Your Votes</h2>
+                <p>Please review your selections before submitting.</p>
+                
+                <div class="review-vote" id="reviewContainer">
+                    <!-- Review items loaded dynamically -->
+                </div>
+                
+                <p id="votingMessage" class="message info">Please confirm your votes before submitting</p>
+                
+                <div class="navigation">
+                    <button onclick="goBackToVoting()" class="secondary-btn">
+                        <i class="fas fa-arrow-left"></i> Modify Votes
+                    </button>
+                    <button onclick="castVotes()" id="submitVoteButton">
+                        <i class="fas fa-paper-plane"></i> Submit Votes
+                    </button>
+                </div>
+            </section>
+
+            <!-- Section 5: Voting Complete -->
+            <section id="completionSection">
+                <div class="completion-screen">
+                    <i class="fas fa-check-circle"></i>
+                    <h2>Voting Complete</h2>
+                    <p>Thank you for participating in the UMA election. Your votes have been recorded.</p>
+                    <div class="navigation">
+                        <button onclick="window.location.reload()">
+                            <i class="fas fa-home"></i> Return to Home
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>UMA Secure Voting System &copy; 2025</p>
+            <p>All votes are confidential and encrypted</p>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+</body>
+</html>
